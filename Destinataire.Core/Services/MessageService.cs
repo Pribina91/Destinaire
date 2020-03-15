@@ -44,6 +44,7 @@ namespace Destinataire.Core.Services
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
+            message.CreatedAt = DateTime.UtcNow;
             await _messageRepository.Insert(message);
 
             return message;
