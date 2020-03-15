@@ -43,7 +43,7 @@ namespace Destinataire.Web.Controllers
             var pagedList = _contactRepository.GetAll(parameters.PageIndex, parameters.PageSize, "");
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pagedList.Pagination));
-            
+
             return Ok(_mapper.Map<PagedList<Contact>, PagedList<ContactDto>>(pagedList));
         }
 
@@ -62,12 +62,11 @@ namespace Destinataire.Web.Controllers
             return Ok(_mapper.Map<ContactDto>(contact));
         }
 
-      
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
         public async Task<IActionResult> PutContact(Guid id, ContactDto contact)
         {
             if (id != contact.Id)
@@ -80,10 +79,10 @@ namespace Destinataire.Web.Controllers
             {
                 return NotFound(id);
             }
-            
+
             try
             {
-                dbContact = _mapper.Map(contact,dbContact);
+                dbContact = _mapper.Map(contact, dbContact);
 
                 await _context.SaveChangesAsync();
             }
@@ -102,7 +101,7 @@ namespace Destinataire.Web.Controllers
             return NoContent();
         }
 
-      
+
         [HttpPost]
         [ProducesResponseType(typeof(ContactDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -115,7 +114,7 @@ namespace Destinataire.Web.Controllers
                 await _contactRepository.Insert(dbContact);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetContact", new { id = contact.Id }, contact);
+                return CreatedAtAction("GetContact", new {id = contact.Id}, contact);
             }
             catch (DbUpdateException)
             {
@@ -123,7 +122,7 @@ namespace Destinataire.Web.Controllers
             }
         }
 
-      
+
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status404NotFound)]
@@ -144,7 +143,6 @@ namespace Destinataire.Web.Controllers
             {
                 return BadRequest();
             }
-          
         }
 
         private async Task<bool> ContactExists(Guid id)

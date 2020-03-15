@@ -39,7 +39,7 @@ namespace Destinataire.Web.Controllers
 
         [HttpGet]
         [Route("received")]
-        [ProducesResponseType(typeof(ContactDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedList<MessageDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PagedList<MessageDto>>> GetReceivedMessages(
             [FromQuery] GetPersonalMessagesParameters parameters)
@@ -56,7 +56,7 @@ namespace Destinataire.Web.Controllers
 
         [HttpGet]
         [Route("sent")]
-        [ProducesResponseType(typeof(ContactDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedList<MessageDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PagedList<MessageDto>>> GetSentMessages(
             [FromQuery] GetPersonalMessagesParameters parameters)
@@ -73,7 +73,7 @@ namespace Destinataire.Web.Controllers
 
 
         [HttpGet]
-        [ProducesResponseType(typeof(ContactDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedList<MessageDto>>> GetMessages([FromQuery] GetMessagesParameters parameters)
         {
             var pagedList = _messageRepository.GetMessages(parameters.Search, parameters.PageIndex, parameters.PageSize,
@@ -86,7 +86,7 @@ namespace Destinataire.Web.Controllers
 
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ContactDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MessageDto>> GetMessage(Guid id)
         {
@@ -130,7 +130,7 @@ namespace Destinataire.Web.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ContactDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(MessageDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MessageDto>> SendMessage([FromBody] SendMessageInput parameters)
         {
@@ -149,7 +149,8 @@ namespace Destinataire.Web.Controllers
 
             try
             {
-                var message = await _messageService.SendMessage(parameters.SenderId, parameters.RecipientId, parameters.Text);
+                var message =
+                    await _messageService.SendMessage(parameters.SenderId, parameters.RecipientId, parameters.Text);
                 await _context.SaveChangesAsync();
                 var messageDto = _mapper.Map<Message, MessageDto>(message);
                 return CreatedAtAction("GetMessage", new {id = messageDto.Id}, messageDto);
@@ -162,12 +163,12 @@ namespace Destinataire.Web.Controllers
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMessage(Guid id)
         {
             if (!await MessageExists(id))
             {
-                return NotFound();
+                return NotFound(id);
             }
 
             await _messageRepository.Delete(id);
