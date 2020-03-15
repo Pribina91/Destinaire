@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Destinataire.Core.Helpers;
 using Destinataire.Core.Interfaces;
+using Destinataire.Core.Repositories.Filtering;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -76,7 +77,9 @@ namespace Destinataire.Web.Controllers
         [ProducesResponseType(typeof(MessageDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedList<MessageDto>>> GetMessages([FromQuery] GetMessagesParameters parameters)
         {
-            var pagedList = _messageRepository.GetMessages(parameters.Search, parameters.PageIndex, parameters.PageSize,
+            var pagedList = _messageRepository.GetMessages(
+                new GetMessagesFilter() {From = parameters.From, To = parameters.To, Search = parameters.Search},
+                parameters.PageIndex, parameters.PageSize,
                 parameters.Order);
 
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pagedList.Pagination));

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Destinataire.Core.Extensions;
 using Destinataire.Core.Helpers;
 using Destinataire.Core.Interfaces;
+using Destinataire.Core.Repositories.Filtering;
 using Destinataire.Data;
 using Destinataire.Data.Model;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace Destinataire.Core.Repositories
 
         
 
-        public PagedList<Message> GetMessages(string filter, int pageIndex, int pageSize, string order)
+        public PagedList<Message> GetMessages(GetMessagesFilter filter, int pageIndex, int pageSize, string order)
         {
             var query = Get().AsNoTracking();
             if (!string.IsNullOrWhiteSpace(order))
@@ -43,15 +44,26 @@ namespace Destinataire.Core.Repositories
                 query = query.SortBy(order);
             }
 
-            if (!string.IsNullOrWhiteSpace(filter))
+            if (filter?.From != null)
             {
-                query = query.Where(m => m.Text.Contains(filter)
-                                         || m.Sender.Name.Contains(filter)
-                                         || m.Sender.FamilyName.Contains(filter)
-                                         || m.Sender.Email.Contains(filter)
-                                         || m.Receiver.Name.Contains(filter)
-                                         || m.Receiver.FamilyName.Contains(filter)
-                                         || m.Receiver.Email.Contains(filter));
+                query = query.Where(m => m.CreatedAt >= filter.From);
+
+            }
+            
+            if (filter?.To != null)
+            {
+                query = query.Where(m => m.CreatedAt <= filter.To);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter?.Search))
+            {
+                query = query.Where(m => m.Text.Contains(filter.Search)
+                                         || m.Sender.Name.Contains(filter.Search)
+                                         || m.Sender.FamilyName.Contains(filter.Search)
+                                         || m.Sender.Email.Contains(filter.Search)
+                                         || m.Receiver.Name.Contains(filter.Search)
+                                         || m.Receiver.FamilyName.Contains(filter.Search)
+                                         || m.Receiver.Email.Contains(filter.Search));
             }
            
             return query.ToPagedList(pageIndex, pageSize);
