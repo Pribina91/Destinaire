@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Destinataire.Core.Helpers;
 
 namespace Destinataire.Core.Extensions
@@ -16,9 +15,7 @@ namespace Destinataire.Core.Extensions
             var query = source;
 
             var orderParams = sortSpecification.Trim().Split(',');
-            //var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var index = 0;
-
+          
             var orderLambdas = GenerateLambdas<TSource>(orderParams).ToList();
             var first = orderLambdas.FirstOrDefault();
             if (first != null)
