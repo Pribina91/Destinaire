@@ -12,7 +12,7 @@ jobs:
   build-and-deploy:
     runs-on: windows-latest
     env:
-      working-directory: ./Destinaire
+      working-directory: .\Destinaire
 
     steps:
     - uses: actions/checkout@master
